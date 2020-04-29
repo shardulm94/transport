@@ -104,6 +104,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     StdFactory stdFactory = new PrestoFactory(boundVariables, metadata);
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
+    System.out.println("new instance for " + this + " and " + stdUDF);
     // Subtract a small jitter value so that refresh is triggered on first call
     // Do not add extra delay, if refresh time was set to lower value by an earlier specialize
     long initialJitter = getRefreshIntervalMillis() / JITTER_FACTOR;
@@ -161,6 +162,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object... arguments) {
     StdData[] args = wrapArguments(stdUDF, types, arguments);
     if (_requiredFilesNextRefreshTime < System.currentTimeMillis()) {
+      System.out.println("inside potential required files for " + this + " and " + stdUDF);
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
       processRequiredFiles(stdUDF, requiredFiles);
     }
@@ -245,6 +247,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private synchronized void processRequiredFiles(StdUDF stdUDF, String[] requiredFiles) {
     if (_requiredFilesNextRefreshTime < System.currentTimeMillis()) {
+      System.out.println("inside required files for " + this + " and " + stdUDF);
       try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(getClass().getClassLoader())) {
         String[] copiedFiles = new String[requiredFiles.length];
         FileSystemClient client = new FileSystemClient();

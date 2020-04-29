@@ -24,9 +24,14 @@ import org.apache.commons.io.IOUtils;
 public class FileLookupFunction extends StdUDF2<StdString, StdInteger, StdBoolean> implements TopLevelStdUDF {
 
   private Set<Integer> ids;
+  private boolean calledBefore = false;
 
   @Override
   public StdBoolean eval(StdString filename, StdInteger intToCheck) {
+    if (!calledBefore) {
+      System.out.println("Called first time for " + this);
+      calledBefore = true;
+    }
     Preconditions.checkNotNull(intToCheck, "Integer to check should not be null");
     return getStdFactory().createBoolean(ids.contains(intToCheck.get()));
   }
