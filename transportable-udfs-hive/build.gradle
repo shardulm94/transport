@@ -4,7 +4,7 @@ dependencies {
   compile project(':transportable-udfs-api')
   compile project(':transportable-udfs-type-system')
   compile project(':transportable-udfs-utils')
-  compile('org.apache.hadoop:hadoop-common:2.7.4')
+  compile('org.apache.hadoop:hadoop-common:2.10.0')
   compileOnly('org.apache.hive:hive-exec:1.2.2') {
     exclude group: 'org.apache.avro'
   }

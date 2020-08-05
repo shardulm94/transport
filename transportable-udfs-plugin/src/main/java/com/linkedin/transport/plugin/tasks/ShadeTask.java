@@ -10,7 +10,7 @@ import com.github.jengelman.gradle.plugins.shadow.relocation.RelocatePathContext
 import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.linkedin.transport.plugin.ConfigurationUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -106,8 +106,9 @@ public class ShadeTask extends ShadowJar {
   protected void copy() {
     Set<String> classPathsToShade = new HashSet<>();
 
-    List<Configuration> configurations =
-        getConfigurations().stream().map(this::setupConfiguration).collect(Collectors.toList());
+    List<Configuration> configurations = getConfigurations().stream()
+        .map(c -> ConfigurationUtils.applyExcludes(getProject(), c, _excludedDependencies))
+        .collect(Collectors.toList());
 
     // Collect all classes which need to be shaded
     configurations.forEach(configuration -> classPathsToShade.addAll(classesInConfiguration(configuration)));
@@ -137,24 +138,6 @@ public class ShadeTask extends ShadowJar {
       }
     });
     super.copy();
-  }
-
-  /**
-   * Create a copy of the input configuration and returns the copied configuration without the excluded dependencies
-   */
-  private Configuration setupConfiguration(Configuration configuration) {
-    Configuration conf = configuration.copyRecursive();
-    _excludedDependencies.forEach(artifact -> {
-      int idx = artifact.indexOf(':');
-      if (idx == -1) {
-        LOG.info("Will exclude all artifacts having the group: " + artifact + " from the shaded jar");
-        conf.exclude(ImmutableMap.of("group", artifact));
-      } else {
-        LOG.info("Will exclude all artifacts having the group and module: " + artifact + " from the shaded jar");
-        conf.exclude(ImmutableMap.of("group", artifact.substring(0, idx), "module", artifact.substring(idx + 1)));
-      }
-    });
-    return conf;
   }
 
   /**
