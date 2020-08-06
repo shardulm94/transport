@@ -1,6 +1,7 @@
 plugins {
   id 'java'
   id 'java-gradle-plugin'
+  id 'groovy'
 }
 
 gradlePlugin {
@@ -18,8 +19,10 @@ dependencies {
   compile ('com.google.guava:guava:24.1-jre')
   compile ('com.google.code.gson:gson:2.8.5')
   compile ('com.github.jengelman.gradle.plugins:shadow:5.0.0')
+
+  testCompile gradleTestKit()
   testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
-    exclude group: 'org.codehaus.groovy'
+    exclude module: "groovy-all"
   }
 }
 
